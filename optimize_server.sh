@@ -18,11 +18,9 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
+echo -e "${Purple}"
+cat << "EOF"
 
-    echo -e "${Purple}"
-    cat << "EOF"
-          
-                 
 ══════════════════════════════════════════════════════════════════════════════════════
         ____                             _     _                                     
     ,   /    )                           /|   /                                  /   
@@ -32,7 +30,7 @@ _/___/________/_/__/_(___(_/_____(_ __/___|/____(___ _(_ __|/_|/__(___/_/_____/_
 
 ══════════════════════════════════════════════════════════════════════════════════════
 EOF
-    echo -e "${NC}"
+echo -e "${NC}"
 
 # Function to install necessary tools
 install_tools() {
@@ -40,6 +38,19 @@ install_tools() {
     sudo apt-get update
     sudo apt-get install -y iproute2 net-tools curl
     echo "Tools installed."
+}
+
+# Function to set time zone based on server location
+set_time_zone() {
+    echo "Setting time zone based on server location..."
+    LOCATION=$(curl -s https://ipapi.co/timezone)
+    if [ -n "$LOCATION" ]; then
+        sudo timedatectl set-timezone "$LOCATION"
+        echo "Time zone set to $(timedatectl | grep 'Time zone')"
+    else
+        echo "Failed to retrieve server location. Setting default time zone to UTC."
+        sudo timedatectl set-timezone "UTC"
+    fi
 }
 
 # Function to optimize network settings
@@ -50,7 +61,7 @@ optimize_network() {
     sudo tc qdisc add dev eth0 root fq
 
     # Set TCP BBR as the congestion control algorithm
-    sudo sysctl -w net.ipv4.tcp_congestion_control=bbr
+    sudo sysctl -w net.ipv4.ttcp_congestion_control=bbr
     sudo sysctl -w net.ipv6.tcp_congestion_control=bbr
 
     # Increase network buffer sizes
@@ -102,8 +113,9 @@ enable_gaming_mode() {
 
 # Main script
 install_tools
+set_time_zone
 optimize_network
 enable_gaming_mode
 check_network_status
 
-echo "Server optimization and gaming mode enabled successfully."
+echo "Server optimization, time zone set, and gaming mode enabled successfully."
