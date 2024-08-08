@@ -14,3 +14,9 @@
 bash <(curl -Ls https://github.com/ipmartnetwork/optimize/raw/master/optimize_server.sh)
 
 ```
+
+
+```
+bash <(curl -Ls https://github.com/ipmartnetwork/optimize/raw/master/haproxy.sh)
+
+```
